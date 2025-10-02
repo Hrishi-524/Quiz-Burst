@@ -1,0 +1,24 @@
+.quiz-form .form-group {
+  margin-bottom: 15px;
+}
+
+.question-card {
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.question-card h3 {
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.question-card input {
+  display: block;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.question-meta input {
+  width: 30%;
+  margin-right: 10px;
+}
