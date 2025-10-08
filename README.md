@@ -32,6 +32,3 @@ It’s built for **interactive learning and fun**, combining real-time updates, 
 | React, Tailwind CSS | Node.js, Express | Socket.IO | MongoDB (Mongoose) |
 
 
-
-# Open in browser
-http://localhost:3000
