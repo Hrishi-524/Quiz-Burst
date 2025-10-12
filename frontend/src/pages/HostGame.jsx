@@ -29,7 +29,6 @@ const HostGameCreate = () => {
             host: hostName
         });
         console.log('Game created:', res.data);
-        // Redirect host to live game page with gameCode
         navigate(`/host-game-live/${res.data.game.gameCode}`);
         } catch (err) {
         console.error(err);

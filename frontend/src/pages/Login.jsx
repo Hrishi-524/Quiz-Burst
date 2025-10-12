@@ -9,7 +9,7 @@ const Login = () => {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        email: "",
+        username: "",
         password: ""
     });
     const [error, setError] = useState(null);
@@ -29,7 +29,7 @@ const Login = () => {
         try {
             setLoading(true);
             const res = await loginUser({
-                email: formData.email,
+                username: formData.username,
                 password: formData.password
             });
 
@@ -64,15 +64,15 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label className="text-slate-300 text-sm block mb-1">Email</label>
+                <label className="text-slate-300 text-sm block mb-1">Username</label>
                 <input
-                type="email"
-                name="email"
+                type="text"
+                name="username"
                 required
-                value={formData.email}
+                value={formData.username}
                 onChange={handleChange}
                 className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 outline-none"
-                placeholder="you@example.com"
+                placeholder="Enter your username"
                 />
             </div>
 

@@ -2,34 +2,34 @@ import Game from '../../models/Game.js';
 import Quiz from '../../models/Quiz.js';
 
 export const handleHostJoin = (io, socket) => {
-  socket.on('hostJoin', async ({ gameCode }) => {
-    try {
-      console.log('Host joining game:', gameCode);
-      
-      // Join the socket room
-      socket.join(gameCode);
-      socket.join(`${gameCode}-host`);
-      
-      // Get game details
-      const game = await Game.findOne({ gameCode }).populate('quiz');
-      if (!game) {
-        socket.emit('error', { message: 'Game not found' });
-        return;
-      }
-      
-      // Send initial data to host
-      socket.emit('waitingRoom', {
-        players: game.players,
-        quizTitle: game.quiz.title,
-        totalQuestions: game.quiz.questions.length,
-        gameStatus: game.status
-      });
-      
-    } catch (error) {
-      console.error('Host join error:', error);
-      socket.emit('error', { message: 'Failed to join as host' });
-    }
-  });
+    socket.on('hostJoin', async ({ gameCode }) => {
+        try {
+        console.log('Host joining game:', gameCode);
+        
+        // Join the socket room
+        socket.join(gameCode);
+        socket.join(`${gameCode}-host`);
+        
+        // Get game details
+        const game = await Game.findOne({ gameCode }).populate('quiz');
+        if (!game) {
+            socket.emit('error', { message: 'Game not found' });
+            return;
+        }
+        
+        // Send initial data to host
+        socket.emit('waitingRoom', {
+            players: game.players,
+            quizTitle: game.quiz.title,
+            totalQuestions: game.quiz.questions.length,
+            gameStatus: game.status
+        });
+        
+        } catch (error) {
+        console.error('Host join error:', error);
+        socket.emit('error', { message: 'Failed to join as host' });
+        }
+    });
 };
 
 export const handleStartGame = (io, socket) => {

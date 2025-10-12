@@ -5,4 +5,4 @@ const generateGameCode = () => {
   return nanoid();
 };
 
-export default { generateGameCode };
+export default generateGameCode;

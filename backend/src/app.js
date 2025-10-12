@@ -13,7 +13,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(json());
-app.use(urlencoded({ extended: true }));
+app.use(urlencoded({ extended: true })); 
 
 // Routes
 app.use('/api/quiz', quizRoutes);

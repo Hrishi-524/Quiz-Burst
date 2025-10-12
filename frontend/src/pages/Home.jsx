@@ -1,4 +1,4 @@
-    import React, { useState, useEffect } from "react";
+    import React, { useState, useEffect, useRef } from "react";
     import { Link, useNavigate } from "react-router-dom";
     import { motion } from "framer-motion";
     import { 
@@ -19,6 +19,9 @@
     Code
     } from "lucide-react";
 import Navbar from "../components/common/Navbar";
+import { socket } from "../socket";
+import { getUserInfo } from "../utils/auth";
+
 
     const Home = () => {
         const navigate = useNavigate();
@@ -26,6 +29,7 @@ import Navbar from "../components/common/Navbar";
         const [gameCode, setGameCode] = useState("");
         const [isHost, setIsHost] = useState(false);
         const [activeFeature, setActiveFeature] = useState(0);
+        const pendingJoin = useRef(null);
 
         useEffect(() => {
             const token = localStorage.getItem("token");
@@ -43,13 +47,55 @@ import Navbar from "../components/common/Navbar";
             return () => clearInterval(interval);
         }, []);
 
+        useEffect(() => {
+            const handleJoinSuccess = (data) => {
+            console.log('Join success:', data);
+            if (pendingJoin.current) {
+                navigate(`/quiz/lobby/${data.gameCode}`, {
+                state: { 
+                    playerName: pendingJoin.current.name,
+                    isLobbyCreator: false, 
+                    initialPlayers: data.players || [],  // ← ADD THIS
+                    quizTitle: data.quizTitle || "" 
+                }
+                });
+                pendingJoin.current = null;
+            }
+            };
+
+            const handleError = (err) => {
+                console.error('Join error:', err);
+                alert(err.message || 'Failed to join');
+                pendingJoin.current = null;
+            };
+
+            socket.on('joinSuccess', handleJoinSuccess);
+            socket.on('error', handleError);
+
+            return () => {
+                socket.off('joinSuccess', handleJoinSuccess);
+                socket.off('error', handleError);
+            };
+        }, [navigate]);
+
+
+        // in Home.jsx handleJoinGame
+        // Home.jsx -> handleJoinGame (player path)
         const handleJoinGame = () => {
             if (!name || !gameCode) {
                 alert("Enter both name and game code");
                 return;
             }
-            navigate(`/play-game/${gameCode}`, { state: { playerName: name } });
+
+            pendingJoin.current = { name, gameCode };
+                socket.emit('playerJoin', {
+                gameCode: gameCode.toUpperCase(),
+                playerName: name
+            });
         };
+
+
+
 
         const features = [
             {

@@ -9,6 +9,7 @@ import HostGameLive from './pages/HostGameLive.jsx';
 import QuizBank from './pages/QuizBank.jsx';
 import Signup from './pages/Signup.jsx';
 import Login from './pages/Login.jsx';
+import Lobby from './pages/Lobby.jsx';
 
 const App = () => {
     return (
@@ -17,12 +18,14 @@ const App = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/quiz/new" element={<CreateQuiz />} />
                 <Route path="/host-game" element={<HostGame />} />
-                <Route path="/host-game-live/:gameCode" element={<HostGameLive />} />
+                <Route path="/host/game/:gameCode" element={<HostGameLive />} />
                 <Route path="/join-game" element={<JoinGame />} />
-                <Route path="/play-game/:gameCode" element={<PlayGame />} />
+                <Route path="/play/game/:gameCode" element={<PlayGame />} />
                 <Route path="/quizbank" element={<QuizBank />} />
                 <Route path="/auth/signup" element={<Signup />} />
                 <Route path="/auth/login" element={<Login />} />
+                <Route path="/quiz/live/:id" element={<HostGameLive />} />
+                <Route path="/quiz/lobby/:gameCode" element={<Lobby />} /> 
             </Routes>
         </Router>
     );
