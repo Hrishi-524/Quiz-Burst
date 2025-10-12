@@ -58,7 +58,7 @@ const quizSchema = new Schema({
     createdBy: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        default: 'anonymous',
+        required: true
     },
     isPublic: {
         type: Boolean,

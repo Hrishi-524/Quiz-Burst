@@ -1,4 +1,5 @@
 // src/controllers/quizController.js
+import mongoose from 'mongoose';
 import Quiz from '../models/Quiz.js';
 import User from '../models/User.js';
 
@@ -13,19 +14,19 @@ export async function createQuiz(req, res) {
         }
 
         // Validate each question
-        for (let i = 0; i < questions.length; i++) {
-            const q = questions[i];
-            if (!q.question || !q.options || q.options.length !== 4) {
-                return res.status(400).json({ 
-                    error: `Question ${i + 1} must have a question text and exactly 4 options` 
-                });
-            }
-            if (q.correctAnswer === undefined || q.correctAnswer < 0 || q.correctAnswer > 3) {
-                return res.status(400).json({ 
-                    error: `Question ${i + 1} must have a valid correct answer (0-3)` 
-                });
-            }
-        }
+            // for (let i = 0; i < questions.length; i++) {
+            //     const q = questions[i];
+            //     if (!q.question || !q.options || q.options.length !== 4) {
+            //         return res.status(400).json({ 
+            //             error: `Question ${i + 1} must have a question text and exactly 4 options` 
+            //         });
+            //     }
+            //     if (q.correctAnswer === undefined || q.correctAnswer < 0 || q.correctAnswer > 3) {
+            //         return res.status(400).json({ 
+            //             error: `Question ${i + 1} must have a valid correct answer (0-3)` 
+            //         });
+            //     }
+            // }
 
         /**
          * const quizData = {
@@ -46,6 +47,15 @@ export async function createQuiz(req, res) {
                 ))],
             }
          */
+        console.log("Decoded user from JWT who is creating quiz:", req.user);
+        /**
+         * Decoded user from JWT who is creating quiz: {
+            id: '68de5eace33e4c8cd82a95df',
+            username: 'Iamnewuser',
+            iat: 1759403692,
+            exp: 1759428892
+            }
+         */
         const quiz = new Quiz({
             title,
             description,
@@ -59,10 +69,12 @@ export async function createQuiz(req, res) {
                 timeLimit: q.timeLimit || 30,
                 points: q.points || 1000,
                 type: q.type || 'single-choice'
-            }))
+            })),
+            createdBy: req.user.id,
         });
 
         console.log('Creating quiz:', quiz);
+        console.log('create quiz quizId:', quiz._id);
 
         await quiz.save();
 
@@ -78,17 +90,19 @@ export async function createQuiz(req, res) {
         });
     } catch (error) {
         console.error('Create quiz error:', error);
-        res.status(500).json({
-            status: 'error', 
-            error: 'Failed to create quiz' 
-        });
+        if (!res.headersSent) {
+            res.status(500).json({
+                status: 'error', 
+                error: 'Failed to create quiz' 
+            });
+        }
     }
 }
 
 export async function getQuiz(req, res) {
     try {
         const { id } = req.params;
-        const quiz = await findById(id);
+        const quiz = await Quiz.findById(id);
 
         if (!quiz) {
             return res.status(404).json({ error: 'Quiz not found' });
@@ -106,25 +120,25 @@ export async function getAllQuizzes(req, res) {
         const { id } = req.params;
         console.log('Fetching quizzes for user ID:', id);
 
-        const User = await User.findById(id);
-        if (!User) {
+        const user = await User.findById(id);
+        if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
         const quizzes = await Quiz.find({ createdBy: id })
-            .select('title description questions createdAt')
             .sort('-createdAt')
             .limit(20);
+        console.log(`Found ${quizzes.length} quizzes for user ID ${id}`);
 
         res.json({
             status: 'success',
-            quizzes: quizzes.map(q => ({
+            quizzesMeta: quizzes.map(q => ({
                 id: q._id,
                 title: q.title,
                 description: q.description,
                 questionCount: q.questions.length,
                 createdAt: q.createdAt,
-                duration: q.questions.aggregate({$sum: "$timeLimit"}),
+                duration: q.questions.reduce((total, question) => total + (question.timeLimit || 0), 0),
                 difficulty: q.difficulty,
                 category: q.category,
                 isPublished : q.isPublic,
@@ -144,7 +158,7 @@ export async function updateQuiz(req, res) {
         const { id } = req.params;
         const updates = req.body;
 
-        const quiz = await findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+        const quiz = await Quiz.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
 
         if (!quiz) {
             return res.status(404).json({ error: 'Quiz not found' });
@@ -168,7 +182,7 @@ export async function updateQuiz(req, res) {
 export async function deleteQuiz(req, res) {
     try {
         const { id } = req.params;
-        const quiz = await findByIdAndDelete(id);
+        const quiz = await Quiz.findByIdAndDelete(id);
 
         if (!quiz) {
         return res.status(404).json({ error: 'Quiz not found' });

@@ -36,9 +36,13 @@ export const signupUser = async (req, res) => {
     res.status(201).json({ token });
 }
  
-export const verifyLogin = async (req, res) => {
+export const loginUser = async (req, res) => {
     const {username, password} = req.body;
-    
+    console.log("Received login data:", req.body);
+
+    if (!username || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+    }
     const user = await User.findOne({ username })
 
     if (!user) {
