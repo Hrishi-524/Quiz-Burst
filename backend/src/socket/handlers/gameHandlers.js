@@ -50,7 +50,7 @@ export const handleStartGame = (io, socket) => {
       
       // Update game status
       game.status = 'in-progress';
-      game.currentQuestionIndex = 0;
+      game.currentQuestion = 0;
       game.startedAt = new Date();
       await game.save();
       
@@ -104,9 +104,9 @@ export const handleNextQuestion = (io, socket) => {
       }
       
       // Move to next question
-      game.currentQuestionIndex = (game.currentQuestionIndex || 0) + 1;
+      game.currentQuestion = (game.currentQuestion || 0) + 1;
       
-      if (game.currentQuestionIndex >= game.quiz.questions.length) {
+      if (game.currentQuestion >= game.quiz.questions.length) {
         // Game is over
         game.status = 'ended';
         game.finishedAt = new Date();
@@ -130,14 +130,14 @@ export const handleNextQuestion = (io, socket) => {
       }
       
       await game.save();
-      const question = game.quiz.questions[game.currentQuestionIndex];
+      const question = game.quiz.questions[game.currentQuestion];
       
       const questionData = {
         question: question.question,
         options: question.options,
         timeLimit: question.timeLimit || 30,
         points: question.points || 1000,
-        questionNumber: game.currentQuestionIndex + 1,
+        questionNumber: game.currentQuestion + 1,
         totalQuestions: game.quiz.questions.length
       };
       
@@ -163,7 +163,7 @@ export const handleShowAnswer = (io, socket) => {
         return;
       }
       
-      const currentQuestion = game.quiz.questions[game.currentQuestionIndex || 0];
+      const currentQuestion = game.quiz.questions[game.currentQuestion || 0];
       
       // Send correct answer to all players
       io.to(gameCode).emit('showAnswer', {
