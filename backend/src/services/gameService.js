@@ -49,7 +49,7 @@ class GameService {
       gameCode,
       players: [],
       status: 'waiting',
-      currentQuestionIndex: 0
+      currentQuestion: 0
     });
 
     await game.save();
@@ -182,7 +182,7 @@ class GameService {
     game.currentQuestion += 1;
 
     // Check if game is over
-    if (game.currentQuestionIndex >= game.quiz.questions.length) {
+    if (game.currentQuestion >= game.quiz.questions.length) {
       game.status = 'ended';
       await game.save();
       return { game, isGameOver: true };

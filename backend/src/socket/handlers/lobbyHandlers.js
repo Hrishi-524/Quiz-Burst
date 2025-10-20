@@ -210,7 +210,7 @@ export const handleSubmitAnswer = (io, socket) => {
         score: result.player.score
       });
 
-      // Update leaderboard for everyone
+      // Update leaderboard for HOST ONLY (not players during game)
       const game = await gameService.getGame(gameCode);
       const leaderboard = gameService.getLeaderboard(game);
       
@@ -228,7 +228,7 @@ export const handleShowAnswer = (io, socket) => {
   socket.on('showAnswer', async ({ gameCode }) => {
     try {
       const game = await gameService.getGame(gameCode);
-      const currentQuestion = game.quiz.questions[game.currentQuestionIndex];
+      const currentQuestion = game.quiz.questions[game.currentQuestion];
 
       io.to(gameCode).emit('answerReveal', {
         correctAnswer: currentQuestion.correctAnswer,
@@ -255,9 +255,9 @@ export const handleNextQuestion = (io, socket) => {
           leaderboard
         });
       } else {
-        const question = game.quiz.questions[game.currentQuestionIndex];
+        const question = game.quiz.questions[game.currentQuestion];
         const questionData = {
-          questionNumber: game.currentQuestionIndex + 1,
+          questionNumber: game.currentQuestion + 1,
           totalQuestions: game.quiz.questions.length,
           question: question.question,
           options: question.options,
