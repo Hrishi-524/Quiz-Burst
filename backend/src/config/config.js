@@ -2,7 +2,7 @@
 export const GAME_SETTINGS = {
     MIN_PLAYERS: 1,
     MAX_PLAYERS: 50,
-    QUESTION_TIME_LIMIT: 30, // seconds
+    QUESTION_TIME_LIMIT: 15, // seconds
     SHOW_ANSWER_TIME: 5, // seconds
     CODE_LENGTH: 6
 };

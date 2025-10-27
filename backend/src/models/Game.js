@@ -12,6 +12,11 @@ const gameSchema = new Schema({
   host: { type: String, default: 'host' }, // can extend later
   gameCode: { type: String, unique: true, required: true },
   players: [playerSchema],
+  questionStats: [{
+    correctCount: { type: Number, default: 0 },
+    incorrectCount: { type: Number, default: 0 },
+    totalAnswers: { type: Number, default: 0 }
+  }],
   status: {
     type: String,
     enum: ['waiting', 'in-progress', 'ended'],

@@ -66,6 +66,8 @@ export async function createQuiz(req, res) {
                 question: q.question,
                 options: q.options,
                 correctAnswer: q.correctAnswer,
+                explanation: q.explanation || '',
+                media: q.media || { type: 'none', url: '', publicId: '' },
                 timeLimit: q.timeLimit || 30,
                 points: q.points || 1000,
                 type: q.type || 'single-choice'

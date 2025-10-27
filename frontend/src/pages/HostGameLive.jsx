@@ -16,6 +16,7 @@ const HostGameLive = () => {
   const [showingAnswer, setShowingAnswer] = useState(false);
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [questionSummaries, setQuestionSummaries] = useState([]);
   const [gameEnded, setGameEnded] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [totalPlayers, setTotalPlayers] = useState(0);
@@ -72,6 +73,7 @@ const HostGameLive = () => {
       console.log("Game ended:", data);
       setGameEnded(true);
       setLeaderboard(data.leaderboard);
+      setQuestionSummaries(data.questionSummaries || []);
       clearTimer();
     };
 
@@ -143,10 +145,47 @@ const HostGameLive = () => {
     navigate("/quizbank");
   };
 
+  const handleDownloadCertificate = async (playerName, score, rank) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/certificate/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          playerName,
+          score,
+          totalQuestions: totalQuestions,
+          quizTitle: 'Quiz Game', // You might want to get this from game data
+          rank,
+          date: new Date().toLocaleDateString()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate certificate');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `certificate-${playerName.replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Certificate download error:', error);
+      alert('Failed to download certificate');
+    }
+  };
+
   if (gameEnded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 flex items-center justify-center">
-        <div className="max-w-4xl w-full bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-8">
+        <div className="max-w-5xl w-full bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-white mb-2">
               🎉 Quiz Complete!
@@ -178,12 +217,51 @@ const HostGameLive = () => {
                     </p>
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-cyan-400">
-                  {player.score}
+                <div className="flex items-center gap-4">
+                  <div className="text-2xl font-bold text-cyan-400">
+                    {player.score}
+                  </div>
+                  <button
+                    onClick={() => handleDownloadCertificate(player.name, player.score, player.rank)}
+                    className="px-3 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm font-medium transition-colors"
+                    title="Download Certificate"
+                  >
+                    📄 Cert
+                  </button>
                 </div>
               </div>
             ))}
           </div>
+
+          {questionSummaries.length > 0 && (
+            <div className="mt-10">
+              <h3 className="text-2xl font-bold text-white mb-4">Question Breakdown</h3>
+              <div className="space-y-4">
+                {questionSummaries.map((q) => (
+                  <div key={q.questionNumber} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm text-slate-400">Question {q.questionNumber}</p>
+                        <p className="text-white font-semibold">{q.question}</p>
+                        <p className="text-cyan-400 mt-2">Correct: {String.fromCharCode(65 + (q.correctAnswer ?? 0))}</p>
+                        {q.explanation && (
+                          <details className="mt-2">
+                            <summary className="cursor-pointer text-slate-300">View Explanation</summary>
+                            <p className="text-slate-300 mt-2 whitespace-pre-wrap">{q.explanation}</p>
+                          </details>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-green-400 font-semibold">Right: {q.stats?.correctCount || 0}</p>
+                        <p className="text-red-400 font-semibold">Wrong: {q.stats?.incorrectCount || 0}</p>
+                        <p className="text-slate-400">Total: {q.stats?.totalAnswers || 0}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <button
             onClick={handleCloseGame}
@@ -272,6 +350,31 @@ const HostGameLive = () => {
               <h2 className="text-3xl font-bold text-white mb-8">
                 {currentQuestion.question}
               </h2>
+
+              {/* Multimedia Content */}
+              {currentQuestion.media && currentQuestion.media.type !== 'none' && currentQuestion.media.url && (
+                <div className="mb-8">
+                  {currentQuestion.media.type === 'image' && (
+                    <img 
+                      src={currentQuestion.media.url} 
+                      alt="Question media" 
+                      className="w-full max-w-2xl h-64 object-cover rounded-xl border border-slate-700 mx-auto"
+                    />
+                  )}
+                  {currentQuestion.media.type === 'video' && (
+                    <video 
+                      src={currentQuestion.media.url} 
+                      controls 
+                      className="w-full max-w-2xl h-64 object-cover rounded-xl border border-slate-700 mx-auto"
+                    />
+                  )}
+                  {currentQuestion.media.type === 'audio' && (
+                    <div className="max-w-2xl mx-auto p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                      <audio src={currentQuestion.media.url} controls className="w-full" />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 {currentQuestion.options.map((option, idx) => (

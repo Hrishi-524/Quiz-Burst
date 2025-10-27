@@ -37,6 +37,8 @@ const CreateQuiz = () => {
             correctAnswer: 0, 
             timeLimit: 30, 
             points: 1000,
+            explanation: '',
+            media: { type: 'none', url: '', publicId: '' },
             type: 'single-choice'
         }
     ]);
@@ -45,6 +47,7 @@ const CreateQuiz = () => {
     const [gameCreated, setGameCreated] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const [uploadingMedia, setUploadingMedia] = useState(false);
     const navigate = useNavigate()
 
     const handleAddQuestion = () => {
@@ -55,6 +58,8 @@ const CreateQuiz = () => {
             correctAnswer: 0,
             timeLimit: 30,
             points: 1000,
+            explanation: '',
+            media: { type: 'none', url: '', publicId: '' },
             type: 'single-choice'
         };
         setQuestions([...questions, newQuestion]);
@@ -94,7 +99,50 @@ const CreateQuiz = () => {
             newQuestions[index].timeLimit = parseInt(value);
         } else if (field === 'points') {
             newQuestions[index].points = parseInt(value);
+        } else if (field === 'media') {
+            newQuestions[index].media = value;
+        } else if (field === 'explanation') {
+            newQuestions[index].explanation = value;
         }
+
+        setQuestions(newQuestions);
+    };
+
+    const handleMediaUpload = async (file, questionIndex) => {
+        if (!file) return;
+
+        setUploadingMedia(true);
+        try {
+            const formData = new FormData();
+            formData.append('media', file);
+
+            const response = await fetch('http://localhost:5000/api/upload/media', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+
+            const result = await response.json();
+            const newQuestions = [...questions];
+            newQuestions[questionIndex].media = result.media;
+            setQuestions(newQuestions);
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Failed to upload media');
+        } finally {
+            setUploadingMedia(false);
+        }
+    };
+
+    const handleRemoveMedia = (questionIndex) => {
+        const newQuestions = [...questions];
+        newQuestions[questionIndex].media = { type: 'none', url: '', publicId: '' };
         setQuestions(newQuestions);
     };
 
@@ -128,6 +176,8 @@ const CreateQuiz = () => {
                         question: q.question, 
                         options: q.options, 
                         correctAnswer: q.correctAnswer, 
+                        explanation: q.explanation,
+                        media: q.media,
                         timeLimit: q.timeLimit, 
                         points: q.points, 
                         type: q.type 
@@ -193,7 +243,7 @@ const CreateQuiz = () => {
             >
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                <button className="p-2 hover:bg-slate-800 rounded-lg transition-colors">
+                <button onClick={() => navigate('/quizbank')}className="p-2 hover:bg-slate-800 rounded-lg transition-colors">
                     <ArrowLeft className="w-5 h-5 text-slate-400" />
                 </button>
                 <div>
@@ -469,6 +519,84 @@ const CreateQuiz = () => {
                         </motion.div>
                         ))}
                     </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm text-slate-400 mb-3 block">Explanation (optional)</label>
+                        <textarea
+                        placeholder=""
+                        value={currentQuestion.explanation}
+                        onChange={(e) => handleChangeQuestion(currentQuestionIndex, 'explanation', e.target.value)}
+                        className="w-full p-4 rounded-xl border border-slate-700 bg-slate-800/50 text-white text-lg placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all resize-none"
+                        />
+                    </div>
+
+                    {/* Multimedia Upload */}
+                    <div className="mb-8">
+                        <label className="text-sm text-slate-400 mb-3 block">Multimedia (optional)</label>
+                        <div className="space-y-4">
+                            {currentQuestion.media.type !== 'none' && currentQuestion.media.url ? (
+                                <div className="relative">
+                                    {currentQuestion.media.type === 'image' && (
+                                        <img 
+                                            src={currentQuestion.media.url} 
+                                            alt="Question media" 
+                                            className="w-full max-w-md h-48 object-cover rounded-xl border border-slate-700"
+                                        />
+                                    )}
+                                    {currentQuestion.media.type === 'video' && (
+                                        <video 
+                                            src={currentQuestion.media.url} 
+                                            controls 
+                                            className="w-full max-w-md h-48 object-cover rounded-xl border border-slate-700"
+                                        />
+                                    )}
+                                    {currentQuestion.media.type === 'audio' && (
+                                        <div className="p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                                            <audio src={currentQuestion.media.url} controls className="w-full" />
+                                        </div>
+                                    )}
+                                    <button
+                                        onClick={() => handleRemoveMedia(currentQuestionIndex)}
+                                        className="absolute top-2 right-2 p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full transition-colors"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center">
+                                    <input
+                                        type="file"
+                                        accept="image/*,video/*,audio/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) handleMediaUpload(file, currentQuestionIndex);
+                                        }}
+                                        className="hidden"
+                                        id="media-upload"
+                                        disabled={uploadingMedia}
+                                    />
+                                    <label
+                                        htmlFor="media-upload"
+                                        className={`cursor-pointer flex flex-col items-center gap-2 ${
+                                            uploadingMedia ? 'opacity-50 cursor-not-allowed' : 'hover:text-cyan-400'
+                                        }`}
+                                    >
+                                        {uploadingMedia ? (
+                                            <>
+                                                <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                                                <span className="text-slate-400">Uploading...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Image className="w-8 h-8 text-slate-400" />
+                                                <span className="text-slate-400">Click to upload image, video, or audio</span>
+                                            </>
+                                        )}
+                                    </label>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Settings */}

@@ -19,6 +19,25 @@ const questionSchema = new Schema({
         min: 0,
         max: 3
     },
+    explanation: {
+        type: String,
+        default: ''
+    },
+    media: {
+        type: {
+            type: String,
+            enum: ['image', 'video', 'audio', 'none'],
+            default: 'none'
+        },
+        url: {
+            type: String,
+            default: ''
+        },
+        publicId: {
+            type: String,
+            default: ''
+        }
+    },
     timeLimit: {
         type: Number,
         default: 30

@@ -48,6 +48,7 @@ class GameService {
       host: hostId,
       gameCode,
       players: [],
+      questionStats: (quiz.questions || []).map(() => ({ correctCount: 0, incorrectCount: 0, totalAnswers: 0 })),
       status: 'waiting',
       currentQuestion: 0
     });
@@ -155,8 +156,18 @@ class GameService {
 
     if (isCorrect) {
       player.score += currentQuestion.points || 1000;
-      await game.save();
     }
+
+    // Update per-question stats
+    if (!game.questionStats || game.questionStats.length !== game.quiz.questions.length) {
+      game.questionStats = (game.quiz.questions || []).map(() => ({ correctCount: 0, incorrectCount: 0, totalAnswers: 0 }));
+    }
+    const stat = game.questionStats[game.currentQuestion] || { correctCount: 0, incorrectCount: 0, totalAnswers: 0 };
+    stat.totalAnswers += 1;
+    if (isCorrect) stat.correctCount += 1; else stat.incorrectCount += 1;
+    game.questionStats[game.currentQuestion] = stat;
+
+    await game.save();
 
     return { isCorrect, player, currentQuestion };
   }
