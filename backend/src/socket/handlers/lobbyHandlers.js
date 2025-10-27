@@ -154,6 +154,7 @@ export const handleStartGame = (io, socket) => {
           totalQuestions: game.quiz.questions.length,
           question: question.question,
           options: question.options,
+          media: question.media || { type: 'none', url: '', publicId: '' },
           timeLimit: question.timeLimit || 30,
           points: question.points || 1000
         };
@@ -249,10 +250,18 @@ export const handleNextQuestion = (io, socket) => {
 
       if (isGameOver) {
         const leaderboard = gameService.getLeaderboard(game);
+        const questionSummaries = (game.quiz.questions || []).map((q, idx) => ({
+          questionNumber: idx + 1,
+          question: q.question,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation || '',
+          stats: game.questionStats?.[idx] || { correctCount: 0, incorrectCount: 0, totalAnswers: 0 }
+        }));
         
         io.to(gameCode).emit('gameEnded', {
           message: 'Quiz completed!',
-          leaderboard
+          leaderboard,
+          questionSummaries
         });
       } else {
         const question = game.quiz.questions[game.currentQuestion];
@@ -261,6 +270,7 @@ export const handleNextQuestion = (io, socket) => {
           totalQuestions: game.quiz.questions.length,
           question: question.question,
           options: question.options,
+          media: question.media || { type: 'none', url: '', publicId: '' },
           timeLimit: question.timeLimit || 30,
           points: question.points || 1000
         };
@@ -280,11 +290,20 @@ export const handleEndGame = (io, socket) => {
   socket.on('endGame', async ({ gameCode }) => {
     try {
       const game = await gameService.endGame(gameCode);
-      const leaderboard = gameService.getLeaderboard(game);
+      const populated = await gameService.getGame(gameCode);
+      const leaderboard = gameService.getLeaderboard(populated);
+      const questionSummaries = (populated.quiz.questions || []).map((q, idx) => ({
+        questionNumber: idx + 1,
+        question: q.question,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation || '',
+        stats: populated.questionStats?.[idx] || { correctCount: 0, incorrectCount: 0, totalAnswers: 0 }
+      }));
 
       io.to(gameCode).emit('gameEnded', {
         message: 'Game ended by host',
-        leaderboard
+        leaderboard,
+        questionSummaries
       });
 
     } catch (error) {
@@ -312,10 +331,18 @@ export const handleTimeUp = (io, socket) => {
 
         if (isGameOver) {
           const leaderboard = gameService.getLeaderboard(updatedGame);
+          const questionSummaries = (updatedGame.quiz.questions || []).map((q, idx) => ({
+            questionNumber: idx + 1,
+            question: q.question,
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation || '',
+            stats: updatedGame.questionStats?.[idx] || { correctCount: 0, incorrectCount: 0, totalAnswers: 0 }
+          }));
           
           io.to(gameCode).emit('gameEnded', {
             message: 'Quiz completed!',
-            leaderboard
+            leaderboard,
+            questionSummaries
           });
         } else {
           const question = updatedGame.quiz.questions[updatedGame.currentQuestion];
@@ -324,6 +351,7 @@ export const handleTimeUp = (io, socket) => {
             totalQuestions: updatedGame.quiz.questions.length,
             question: question.question,
             options: question.options,
+            media: question.media || { type: 'none', url: '', publicId: '' },
             timeLimit: question.timeLimit || 30,
             points: question.points || 1000
           };

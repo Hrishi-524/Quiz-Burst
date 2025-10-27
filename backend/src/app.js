@@ -3,6 +3,8 @@ import cors from 'cors';
 import quizRoutes from './routes/quizRoutes.js';
 import gameRoutes from './routes/gameRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
+import certificateRoutes from './routes/certificateRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
@@ -19,6 +21,8 @@ app.use(urlencoded({ extended: true }));
 app.use('/api/quiz', quizRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/certificate', certificateRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

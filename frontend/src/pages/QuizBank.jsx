@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Brain, Play, Plus, Search, Filter, Clock, Users, Target,
   Edit, Trash2, MoreVertical, TrendingUp, Award, ChevronDown,
-  Copy, Sparkles, BarChart3
+  Copy, Sparkles, BarChart3, ArrowLeft
 } from 'lucide-react';
 import { getAllQuizzes } from '../api/quiz';
 import { getUserInfo } from '../utils/auth';
@@ -196,7 +196,7 @@ function QuizBank() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-sm">
+          {/* <div className="flex items-center gap-2 text-sm">
             <div className="p-1.5 bg-amber-500/10 rounded-lg">
               <Users className="w-4 h-4 text-amber-400" />
             </div>
@@ -204,7 +204,7 @@ function QuizBank() {
               <div className="text-slate-500 text-xs">Plays</div>
               <div className="text-white font-semibold">{quiz.plays}</div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -214,10 +214,10 @@ function QuizBank() {
           <span className="px-3 py-1 rounded-lg border border-slate-700 bg-slate-800/50 text-slate-300 text-xs font-medium">
             {quiz.category}
           </span>
-          <div className="flex items-center gap-1 px-2 py-1 text-xs text-slate-400">
+          {/* <div className="flex items-center gap-1 px-2 py-1 text-xs text-slate-400">
             <TrendingUp className="w-3 h-3" />
             <span>{quiz.avgScore}% avg</span>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -259,6 +259,15 @@ function QuizBank() {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none"></div>
 
       <div className="relative z-10 container mx-auto px-6 py-12 max-w-7xl">
+        <motion.button
+              onClick={() => navigate('/')}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-6 py-3 mb-5 bg-gradient-to-r from-cyan-700 to-blue-700 text-white rounded-xl font-semibold shadow-lg shadow-cyan-300/10 hover:shadow-cyan-500/30 transition-all flex items-center gap-2"
+            >
+              <ArrowLeft className="w-5 h-5 text-slate-1" />
+              Back To Home
+            </motion.button>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -312,7 +321,7 @@ function QuizBank() {
             </motion.button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+          {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
             <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800 p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-cyan-500/10 rounded-lg">
@@ -368,7 +377,7 @@ function QuizBank() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </motion.div>
 
         {loading ? (

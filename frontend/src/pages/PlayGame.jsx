@@ -21,6 +21,7 @@ const PlayerGameLive = () => {
   const [currentScore, setCurrentScore] = useState(0);
   const [gameEnded, setGameEnded] = useState(false);
   const [finalLeaderboard, setFinalLeaderboard] = useState([]);
+  const [questionSummaries, setQuestionSummaries] = useState([]);
 
   const timerRef = useRef(null);
   const hasJoinedRef = useRef(false);
@@ -68,6 +69,7 @@ const PlayerGameLive = () => {
       console.log("Game ended:", data);
       setGameEnded(true);
       setFinalLeaderboard(data.leaderboard);
+      setQuestionSummaries(data.questionSummaries || []);
       clearTimer();
     };
 
@@ -137,6 +139,46 @@ const PlayerGameLive = () => {
     navigate("/");
   };
 
+  const handleDownloadCertificate = async () => {
+    try {
+      const playerPosition = finalLeaderboard.find(p => p.name === playerName);
+      if (!playerPosition) return;
+
+      const response = await fetch('http://localhost:5000/api/certificate/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          playerName,
+          score: playerPosition.score,
+          totalQuestions: totalQuestions,
+          gameCode,
+          rank: playerPosition.rank,
+          date: new Date().toLocaleDateString()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate certificate');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `certificate-${playerName.replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Certificate download error:', error);
+      alert('Failed to download certificate');
+    }
+  };
+
   if (gameEnded) {
     // Find player's position
     const playerPosition = finalLeaderboard.find(
@@ -145,7 +187,7 @@ const PlayerGameLive = () => {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 flex items-center justify-center">
-        <div className="max-w-4xl w-full bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-8">
+        <div className="max-w-5xl w-full bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-white mb-2">
               🎉 Quiz Complete!
@@ -197,12 +239,41 @@ const PlayerGameLive = () => {
             </div>
           </div>
 
-          <button
-            onClick={handleBackToHome}
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:shadow-lg transition-all"
-          >
-            Back to Home
-          </button>
+          {questionSummaries.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-2xl font-bold text-white mb-4">Review Questions</h3>
+              <div className="space-y-4">
+                {questionSummaries.map((q) => (
+                  <div key={q.questionNumber} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                    <p className="text-sm text-slate-400">Question {q.questionNumber}</p>
+                    <p className="text-white font-semibold">{q.question}</p>
+                    <p className="text-cyan-400 mt-2">Correct: {String.fromCharCode(65 + (q.correctAnswer ?? 0))}</p>
+                    {q.explanation && (
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-slate-300">View Explanation</summary>
+                        <p className="text-slate-300 mt-2 whitespace-pre-wrap">{q.explanation}</p>
+                      </details>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-4">
+            <button
+              onClick={handleDownloadCertificate}
+              className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            >
+              📄 Download Certificate
+            </button>
+            <button
+              onClick={handleBackToHome}
+              className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:shadow-lg transition-all"
+            >
+              Back to Home
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -274,6 +345,32 @@ const PlayerGameLive = () => {
           <h2 className="text-3xl font-bold text-white mb-8 text-center">
             {currentQuestion.question}
           </h2>
+
+          {/* Multimedia Content */}
+          {currentQuestion.media && currentQuestion.media.type !== 'none' && currentQuestion.media.url && (
+            <div className="mb-8">
+              {currentQuestion.media.type === 'image' && (
+                <img
+                src={currentQuestion.media.url}
+                alt="Question media"
+                className="w-full max-w-2xl max-h-[70vh] object-contain rounded-xl border border-slate-700 mx-auto"
+                />
+
+              )}
+              {currentQuestion.media.type === 'video' && (
+                <video 
+                  src={currentQuestion.media.url} 
+                  controls 
+                  className="w-full max-w-2xl h-64 object-cover rounded-xl border border-slate-700 mx-auto"
+                />
+              )}
+              {currentQuestion.media.type === 'audio' && (
+                <div className="max-w-2xl mx-auto p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                  <audio src={currentQuestion.media.url} controls className="w-full" />
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {currentQuestion.options.map((option, idx) => (
