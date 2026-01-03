@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { createQuiz } from '../api/quiz';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';  
 
 const CreateQuiz = () => {
     const [title, setTitle] = useState('');
@@ -116,12 +117,12 @@ const CreateQuiz = () => {
             const formData = new FormData();
             formData.append('media', file);
 
-            const response = await fetch('http://localhost:5000/api/upload/media', {
-                method: 'POST',
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+            const response = await axios.post('/upload/media', formData, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: formData
+                    'Content-Type': 'multipart/form-data'
+                }
             });
 
             if (!response.ok) {
