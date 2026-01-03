@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { getUserInfo } from "../utils/auth";
 import axios from "axios";
+import { createCertficate,createDownloadLink } from "../api/certificate";
 
 const HostGameLive = () => {
   const { gameCode } = useParams();
@@ -148,27 +149,18 @@ const HostGameLive = () => {
 
   const handleDownloadCertificate = async (playerName, score, rank) => {
     try {
-      const response = await axios.post('/certificate/generate', {
-        playerName,
-        score,
-        totalQuestions: totalQuestions,
-        gameCode: gameCode, // Your backend needs this
-        rank,
-        date: new Date().toLocaleDateString()
-      }, {
-        responseType: 'blob' // Important for PDF download
-      });
+        const metadata = {
+            playerName,
+            score,
+            totalQuestions: totalQuestions,
+            gameCode: gameCode, // Your backend needs this
+            rank,
+            date: new Date().toLocaleDateString()
+        }
 
-      // Create download link
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `certificate-${playerName.replace(/\s+/g, '-')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+        const response = await createCertficate(metadata)
+        
+        createDownloadLink(metadata, response)
     } catch (error) {
       console.error('Certificate download error:', error);
       alert('Failed to download certificate: ' + (error.response?.data?.error || error.message));

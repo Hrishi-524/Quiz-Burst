@@ -10,6 +10,7 @@ import {
 import { getAllQuizzes } from '../api/quiz';
 import { getUserInfo } from '../utils/auth';
 import { socket } from '../socket';
+import axios from 'axios';
 
 function QuizBank() {
   const [quizzes, setQuizzes] = useState([]);
