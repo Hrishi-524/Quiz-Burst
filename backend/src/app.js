@@ -10,10 +10,18 @@ import errorHandler from './middleware/errorHandler.js';
 const app = express();
 
 // Middleware
-app.use(cors({ 
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
-  credentials: true
-}));
+const io = new Server(server, {
+    cors: {
+        origin: [
+            "https://quiz-burst.vercel.app",  // No trailing slash
+            "http://localhost:5173",
+            "http://localhost:5174"
+        ],
+        methods: ["GET", "POST"],
+        credentials: true,
+    },
+    path: "/socket.io/"  // Explicit path
+});
 app.use(json());
 app.use(urlencoded({ extended: true })); 
 
