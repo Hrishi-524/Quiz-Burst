@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { getUserInfo } from "../utils/auth";
+import axios from "axios";
 
 const HostGameLive = () => {
   const { gameCode } = useParams();
@@ -147,27 +148,19 @@ const HostGameLive = () => {
 
   const handleDownloadCertificate = async (playerName, score, rank) => {
     try {
-      const response = await fetch('http://localhost:5000/api/certificate/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          playerName,
-          score,
-          totalQuestions: totalQuestions,
-          quizTitle: 'Quiz Game', // You might want to get this from game data
-          rank,
-          date: new Date().toLocaleDateString()
-        })
+      const response = await axios.post('/certificate/generate', {
+        playerName,
+        score,
+        totalQuestions: totalQuestions,
+        gameCode: gameCode, // Your backend needs this
+        rank,
+        date: new Date().toLocaleDateString()
+      }, {
+        responseType: 'blob' // Important for PDF download
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate certificate');
-      }
-
-      const blob = await response.blob();
+      // Create download link
+      const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -178,7 +171,7 @@ const HostGameLive = () => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Certificate download error:', error);
-      alert('Failed to download certificate');
+      alert('Failed to download certificate: ' + (error.response?.data?.error || error.message));
     }
   };
 

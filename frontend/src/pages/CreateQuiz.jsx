@@ -117,25 +117,19 @@ const CreateQuiz = () => {
             const formData = new FormData();
             formData.append('media', file);
 
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
+            // axios already has the baseURL and Authorization from your interceptors
             const response = await axios.post('/upload/media', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
-            if (!response.ok) {
-                throw new Error('Upload failed');
-            }
-
-            const result = await response.json();
             const newQuestions = [...questions];
-            newQuestions[questionIndex].media = result.media;
+            newQuestions[questionIndex].media = response.data.media;
             setQuestions(newQuestions);
         } catch (error) {
             console.error('Upload error:', error);
-            alert('Failed to upload media');
+            alert('Failed to upload media: ' + (error.response?.data?.error || error.message));
         } finally {
             setUploadingMedia(false);
         }
