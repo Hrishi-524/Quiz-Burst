@@ -3,8 +3,8 @@ import { jwtDecode } from 'jwt-decode'
 
 // Set up axios interceptor to automatically include token in requests
 export const setupAxiosInterceptors = () => {
-    axios.defaults.baseURL =  import.meta.env.BACKEND_REQUEST_URL;
-    console.log(axios.defaults.baseURL)
+    axios.defaults.baseURL =  import.meta.env.BACKEND_REQUEST_URL || 'https://metaterminal.duckdns.org/quizburst/api'; 
+    console.log('This is axios Interceptors base url: ',axios.defaults.baseURL)
 
     // Request interceptor to add token to headers
     axios.interceptors.request.use(
