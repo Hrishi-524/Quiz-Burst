@@ -1,7 +1,7 @@
 // frontend/src/socket.js
 import { io } from "socket.io-client";
 
-export const socket = io("ws://localhost:5000", {
+export const socket = io(import.meta.env.VITE_SOCKET_URL, {
     withCredentials: true,
     transports: ["websocket"], // prefer websocket
 });
