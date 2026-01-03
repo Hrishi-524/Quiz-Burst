@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { socket } from "../socket";
 import { createDownloadLink, createCertficate } from "../api/certificate";
+import { setupAxiosInterceptors } from "../utils/auth";
 
 const PlayerGameLive = () => {
   const { gameCode } = useParams();
@@ -29,6 +30,7 @@ const PlayerGameLive = () => {
 
   useEffect(() => {
     // Verify player has a name
+    setupAxiosInterceptors()
     if (!playerName) {
       navigate(`/quiz/lobby/${gameCode}`);
       return;
