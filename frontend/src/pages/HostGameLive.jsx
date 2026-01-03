@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
-import { getUserInfo } from "../utils/auth";
+import { getUserInfo, setupAxiosInterceptors } from "../utils/auth";
 import axios from "axios";
 import { createCertficate,createDownloadLink } from "../api/certificate";
 
@@ -28,6 +28,7 @@ const HostGameLive = () => {
 
   useEffect(() => {
     // Verify user is logged in
+    setupAxiosInterceptors()
     if (!user) {
       navigate("/login");
       return;
