@@ -144,27 +144,19 @@ const PlayerGameLive = () => {
       const playerPosition = finalLeaderboard.find(p => p.name === playerName);
       if (!playerPosition) return;
 
-      const response = await fetch('http://localhost:5000/api/certificate/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          playerName,
-          score: playerPosition.score,
-          totalQuestions: totalQuestions,
-          gameCode,
-          rank: playerPosition.rank,
-          date: new Date().toLocaleDateString()
-        })
+      const response = await axios.post('/certificate/generate', {
+        playerName,
+        score: playerPosition.score,
+        totalQuestions: totalQuestions,
+        gameCode,
+        rank: playerPosition.rank,
+        date: new Date().toLocaleDateString()
+      }, {
+        responseType: 'blob' // Critical for PDF download
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate certificate');
-      }
-
-      const blob = await response.blob();
+      // Create download link
+      const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -175,7 +167,7 @@ const PlayerGameLive = () => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Certificate download error:', error);
-      alert('Failed to download certificate');
+      alert('Failed to download certificate: ' + (error.response?.data?.error || error.message));
     }
   };
 

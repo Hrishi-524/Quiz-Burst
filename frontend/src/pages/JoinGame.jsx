@@ -11,7 +11,7 @@ const JoinGame = () => {
     if (!playerName || !gameCode) return alert('Enter your name and game code');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/game/join', {
+      const res = await axios.post('/game/join', {
         name: playerName,
         gameCode
       });
