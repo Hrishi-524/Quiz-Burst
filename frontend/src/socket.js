@@ -1,10 +1,13 @@
 // frontend/src/socket.js
 import { io } from "socket.io-client";
 
-export const socket = io(import.meta.env.VITE_SOCKET_URL, {
-    path: "/socket.io/",  // Add this
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
+console.log('Socket URL:', SOCKET_URL); // Debug log
+
+export const socket = io(SOCKET_URL, {
+    path: "/socket.io/",
     withCredentials: true,
-    transports: ["websocket", "polling"], // Try both, prefer websocket
+    transports: ["websocket", "polling"],
 });
 
 socket.on("connect", () => console.log("✅ Socket connected:", socket.id));
