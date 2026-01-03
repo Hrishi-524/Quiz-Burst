@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { socket } from "../socket";
-import axios from "axios";
+import { createDownloadLink, createCertficate } from "../api/certificate";
 
 const PlayerGameLive = () => {
   const { gameCode } = useParams();
@@ -145,27 +145,19 @@ const PlayerGameLive = () => {
       const playerPosition = finalLeaderboard.find(p => p.name === playerName);
       if (!playerPosition) return;
 
-      const response = await axios.post('/certificate/generate', {
+      const metadata = {
         playerName,
         score: playerPosition.score,
         totalQuestions: totalQuestions,
         gameCode,
         rank: playerPosition.rank,
         date: new Date().toLocaleDateString()
-      }, {
-        responseType: 'blob' // Critical for PDF download
-      });
+      }
 
-      // Create download link
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `certificate-${playerName.replace(/\s+/g, '-')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const response = await createCertficate(metadata) 
+
+      createDownloadLink(metadata, response)
+      
     } catch (error) {
       console.error('Certificate download error:', error);
       alert('Failed to download certificate: ' + (error.response?.data?.error || error.message));

@@ -4,7 +4,7 @@ import { jwtDecode } from 'jwt-decode'
 // Set up axios interceptor to automatically include token in requests
 export const setupAxiosInterceptors = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-    axios.defaults.baseURL = `${API_URL}/quizburst/api`;
+    axios.defaults.baseURL = `${API_URL}/api`;
     console.log('Axios base URL:', axios.defaults.baseURL); // Debug log
 
     // Request interceptor to add token to headers
