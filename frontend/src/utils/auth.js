@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode'
 
 // Set up axios interceptor to automatically include token in requests
 export const setupAxiosInterceptors = () => {
-    axios.defaults.baseURL =  'http://localhost:5000/api';
+    axios.defaults.baseURL =  import.meta.env.BACKEND_REQUEST_URL;
     console.log(axios.defaults.baseURL)
 
     // Request interceptor to add token to headers
