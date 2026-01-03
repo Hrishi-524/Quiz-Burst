@@ -10,18 +10,10 @@ import errorHandler from './middleware/errorHandler.js';
 const app = express();
 
 // Middleware
-const io = new Server(server, {
-    cors: {
-        origin: [
-            "https://quiz-burst.vercel.app",  // No trailing slash
-            "http://localhost:5173",
-            "http://localhost:5174"
-        ],
-        methods: ["GET", "POST"],
-        credentials: true,
-    },
-    path: "/socket.io/"  // Explicit path
-});
+app.use(cors({ 
+  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  credentials: true
+}));
 app.use(json());
 app.use(urlencoded({ extended: true })); 
 
@@ -33,7 +25,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/certificate', certificateRoutes);
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'QuizBurst API is running' });
 });
 
