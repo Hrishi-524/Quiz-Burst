@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { socket } from "../socket";
+import axios from "axios";
 
 const PlayerGameLive = () => {
   const { gameCode } = useParams();
