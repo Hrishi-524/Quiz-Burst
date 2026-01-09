@@ -51,7 +51,7 @@ const Navbar = () => {
                 ) : (
                     <>
                         <Link
-                            to="/auth/signup"
+                            to="/signup"
                             className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg"
                         >
                             Become a Host
@@ -97,14 +97,14 @@ const Navbar = () => {
             ) : (
                 <>
                 <Link
-                    to="/auth/login"
+                    to="/login"
                     onClick={() => setMenuOpen(false)}
                     className="block hover:text-cyan-300"
                 >
                     Login
                 </Link>
                 <Link
-                    to="/auth/signup"
+                    to="/signup"
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-2 bg-cyan-500 hover:bg-cyan-400 rounded-lg"
                 >
