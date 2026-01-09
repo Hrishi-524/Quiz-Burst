@@ -1,4 +1,4 @@
-// src/pages/auth/Signup.jsx
+// src/pages/Signup.jsx
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -148,7 +148,7 @@ const Signup = () => {
             <p className="text-slate-400 text-center mt-6 text-sm">
             Already have an account?{" "}
             <a
-                href="/auth/login"
+                href="/login"
                 className="text-cyan-400 hover:text-cyan-300 font-semibold"
             >
                 Sign in
