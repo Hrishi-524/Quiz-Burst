@@ -59,6 +59,19 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+  console.log("initial socket.connected:", socket.connected);
+
+  socket.on("connect_error", (err) => {
+    console.error("❌ socket connect_error:", err.message);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.warn("⚠️ socket disconnected:", reason);
+  });
+}, []);
+
+
+  useEffect(() => {
     const handleJoinSuccess = (data) => {
       console.log("Join success:", data);
       if (pendingJoin.current) {
