@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { loginUser } from "../api/user";
+import { Link } from "react-router-dom";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -104,12 +105,12 @@ const Login = () => {
 
             <p className="text-slate-400 text-center mt-6 text-sm">
             Don’t have an account?{" "}
-            <a
-                href="/signup"
+            <Link
+                to="/signup"
                 className="text-cyan-400 hover:text-cyan-300 font-semibold"
             >
                 Sign up
-            </a>
+            </Link>
             </p>
         </motion.div>
         </div>
