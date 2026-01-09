@@ -105,7 +105,7 @@ const Login = () => {
             <p className="text-slate-400 text-center mt-6 text-sm">
             Don’t have an account?{" "}
             <a
-                href="/auth/signup"
+                href="/signup"
                 className="text-cyan-400 hover:text-cyan-300 font-semibold"
             >
                 Sign up

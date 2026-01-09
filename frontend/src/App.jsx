@@ -22,8 +22,8 @@ const App = () => {
                 <Route path="/join-game" element={<JoinGame />} />
                 <Route path="/play/game/:gameCode" element={<PlayGame />} />
                 <Route path="/quizbank" element={<QuizBank />} />
-                <Route path="/auth/signup" element={<Signup />} />
-                <Route path="/auth/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/quiz/live/:id" element={<HostGameLive />} />
                 <Route path="/quiz/lobby/:gameCode" element={<Lobby />} /> 
             </Routes>
