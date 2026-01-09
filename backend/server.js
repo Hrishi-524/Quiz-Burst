@@ -19,8 +19,7 @@ const io = new Server(server, {
             "http://localhost:5173",
             "http://localhost:5174"
         ],
-        methods: ["GET", "POST"],
-        credentials: true,
+        methods: ["GET", "POST"]
     },
     path: "/socket.io/"  // Explicit path
 });
