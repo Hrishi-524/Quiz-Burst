@@ -10,6 +10,7 @@ import QuizBank from './pages/QuizBank.jsx';
 import Signup from './pages/Signup.jsx';
 import Login from './pages/Login.jsx';
 import Lobby from './pages/Lobby.jsx';
+import SocketDebug from './pages/SocketDebug.jsx'
 
 const App = () => {
     return (
