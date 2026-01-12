@@ -1,56 +1,29 @@
 // frontend/src/socket.js
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3002';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
 export const socket = io(SOCKET_URL, {
-  // CRITICAL for mobile devices
-  transports: ['websocket', 'polling'], // Try websocket first, fallback to polling
+  // ONLY CHANGE: Start with polling instead of websocket
+  // This works better on mobile networks
+  transports: ['polling', 'websocket'], // Changed from ['websocket', 'polling']
   
-  // Increase timeouts for slower mobile connections
-  timeout: 20000,
+  path: '/quizburst/socket.io/', // Your subpath
   
-  // Reconnection settings
-  reconnection: true,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  reconnectionAttempts: 5,
-  
-  // Force new connection (helps with mobile switching networks)
-  forceNew: false,
-  
-  // Explicitly set path
-  path: '/socket.io/',
-  
-  // Enable auto-connect
+  // Keep everything else the same
   autoConnect: true,
-  
-  // Additional mobile-friendly options
-  upgrade: true,
-  rememberUpgrade: true,
-  
-  // CORS credentials
-  withCredentials: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  timeout: 20000,
 });
 
-// Debug logging
+// Debug logging (optional - remove if you don't want logs)
 socket.on('connect', () => {
-  console.log('✅ Socket connected:', socket.id);
-  console.log('Transport:', socket.io.engine.transport.name);
+  console.log('✅ Connected:', socket.id);
 });
 
 socket.on('connect_error', (error) => {
-  console.error('❌ Connection error:', error.message);
-  console.log('Attempted transport:', socket.io.engine.transport.name);
-});
-
-socket.on('disconnect', (reason) => {
-  console.warn('⚠️ Socket disconnected:', reason);
-});
-
-// Monitor transport upgrades
-socket.io.engine.on('upgrade', (transport) => {
-  console.log('🔄 Transport upgraded to:', transport.name);
+  console.error('❌ Error:', error.message);
 });
 
 export default socket;
