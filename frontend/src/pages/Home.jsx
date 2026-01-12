@@ -46,28 +46,55 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const onConnect = () => setSocketReady(true);
-    const onDisconnect = () => setSocketReady(false);
+  console.log('🔌 Initial socket state:', socket.connected);
+  
+  // Force connection if not connected
+  if (!socket.connected) {
+    console.log('🔄 Manually connecting socket...');
+    socket.connect();
+  }
 
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
+  const onConnect = () => {
+    console.log('✅ Socket connected:', socket.id);
+    console.log('Transport:', socket.io?.engine?.transport?.name);
+    setSocketReady(true);
+  };
+  
+  const onDisconnect = (reason) => {
+    console.warn('⚠️ Socket disconnected:', reason);
+    setSocketReady(false);
+    
+    // Auto-reconnect on mobile network issues
+    if (reason === 'io server disconnect') {
+      socket.connect();
+    }
+  };
+  
+  const onConnectError = (err) => {
+    console.error('❌ Connection error:', err.message);
+    setSocketReady(false);
+  };
+  
+  const onReconnect = (attemptNumber) => {
+    console.log('🔄 Reconnected after', attemptNumber, 'attempts');
+  };
 
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-    };
-  }, []);
+  socket.on('connect', onConnect);
+  socket.on('disconnect', onDisconnect);
+  socket.on('connect_error', onConnectError);
+  socket.on('reconnect', onReconnect);
 
-  useEffect(() => {
-  console.log("initial socket.connected:", socket.connected);
+  // Check connection state
+  if (socket.connected) {
+    setSocketReady(true);
+  }
 
-  socket.on("connect_error", (err) => {
-    console.error("❌ socket connect_error:", err.message);
-  });
-
-  socket.on("disconnect", (reason) => {
-    console.warn("⚠️ socket disconnected:", reason);
-  });
+  return () => {
+    socket.off('connect', onConnect);
+    socket.off('disconnect', onDisconnect);
+    socket.off('connect_error', onConnectError);
+    socket.off('reconnect', onReconnect);
+  };
 }, []);
 
 
@@ -238,17 +265,31 @@ const Home = () => {
               </div>
 
               <motion.button
-                onClick={handleJoinGame}
-                disabled={!socket.connected}
-                className={`w-full py-4 rounded-xl font-semibold text-lg transition-all
-                        ${
-                          socketReady
-                            ? "bg-gradient-to-r from-cyan-500 to-blue-600"
-                            : "bg-slate-700 cursor-not-allowed opacity-60"
-                        }`}
-              >
-                {socketReady ? "Join Game Now" : "Connecting…"}
-              </motion.button>
+            onClick={handleJoinGame}
+            disabled={!socketReady}
+            className={`w-full py-4 rounded-xl font-semibold text-lg transition-all
+                ${socketReady
+                ? "bg-gradient-to-r from-cyan-500 to-blue-600 hover:shadow-xl"
+                : "bg-slate-700 cursor-not-allowed opacity-60"
+                }`}
+            >
+            {socketReady ? (
+                <>
+                <span className="inline-flex items-center gap-2">
+                    Join Game Now
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                </span>
+                </>
+            ) : (
+                <>
+                <span className="inline-flex items-center gap-2">
+                    Connecting
+                    <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                </span>
+                </>
+            )}
+            </motion.button>
+
 
               <p className="text-center text-slate-500 text-sm mt-5">
                 No account needed • Join instantly • Free to play

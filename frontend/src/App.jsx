@@ -26,6 +26,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/quiz/live/:id" element={<HostGameLive />} />
                 <Route path="/quiz/lobby/:gameCode" element={<Lobby />} /> 
+                <Route path="/debug" element={<SocketDebug />} />
             </Routes>
         </Router>
     );
