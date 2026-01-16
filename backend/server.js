@@ -63,7 +63,7 @@ setupSocketHandlers(io);
 // Set io instance for routes
 app.set('io', io);
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, 'localhost', () => {
     console.log(`Server running on port ${PORT}`);
     console.log('Socket.IO transports:', ['websocket', 'polling']);
 });
