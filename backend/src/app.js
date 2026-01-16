@@ -17,9 +17,11 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'https://quiz-burst.vercel.app'
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://quiz-burst.vercel.app',
+    'https://quizburst.route53.xyz',
+    'https://route53.xyz'
     ];
     
     if (allowedOrigins.indexOf(origin) !== -1) {
