@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
+import { Server } from 'socket.io';
 
 const app = express();
 
