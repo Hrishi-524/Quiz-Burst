@@ -8,7 +8,7 @@ export const socket = io(SOCKET_URL, {
   // This works better on mobile networks
   transports: ['polling', 'websocket'], // Changed from ['websocket', 'polling']
   
-  path: '/quizburst/socket.io/', // Your subpath
+  path: '/socket.io/', // Your subpath
   
   // Keep everything else the same
   autoConnect: true,
