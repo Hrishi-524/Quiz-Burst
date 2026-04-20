@@ -23,7 +23,7 @@ app.use(cors({
             'https://quiz-burst.vercel.app',
             'https://quizburst.route53.xyz',
             'https://route53.xyz',
-            'https://quizburst.api.hrishi-developer.in',
+            'https://quizburst.hrishi-developer.in',
             'https://hrishi-developer.in'
         ];
         
