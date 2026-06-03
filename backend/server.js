@@ -17,9 +17,7 @@ const io = new Server(server, {
         origin: [
             "https://quiz-burst.vercel.app",
             "http://localhost:5173",
-            "http://localhost:5174",
-            "https://quizburst.hrishi-developer.in",
-            "https://hrishi-developer.in"
+            "http://localhost:5174"
         ],
         methods: ["GET", "POST"],
         credentials: true
