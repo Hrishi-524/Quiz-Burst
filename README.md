@@ -1,4 +1,4 @@
-# 🧠 Quiz-Burst (screenshots attached below, soon live with more features)
+# 🧠 Quiz-Burst (screenshots attached below, live with CertJs x QuizBurst soon)
 
 > A real-time interactive quiz platform built with MERN stack and Socket.IO
 
